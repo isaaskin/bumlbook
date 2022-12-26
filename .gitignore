@@ -1,0 +1,9 @@
+# Build files
+dist/*js
+dist/*ts
+
+# Node modules
+node_modules/
+
+# Peg
+src/plantuml.ts
