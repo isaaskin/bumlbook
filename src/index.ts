@@ -1,13 +1,15 @@
 
 
 const { parse } = require("./plantuml")
+const plantumlEncoder = require('plantuml-encoder')
 
-const data = `
-@startuml
-class Member {
-    name: string
+const runBuml = () => {
+    const encodedData = new URLSearchParams(window.location.search).get("code")
+    if (encodedData === null) {
+        return
+    }
+    const decodedData = plantumlEncoder.decode(encodedData)
+    alert(decodedData)
 }
-@enduml
-`
 
-console.log(parse(data))
+module.exports.runBuml = runBuml
