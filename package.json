@@ -25,6 +25,10 @@
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {
-    "plantuml-encoder": "^1.4.0"
+    "array-smooth": "^1.0.0",
+    "install": "^0.13.0",
+    "npm": "^9.2.0",
+    "plantuml-encoder": "^1.4.0",
+    "treemap-squarify": "^1.0.1"
   }
 }

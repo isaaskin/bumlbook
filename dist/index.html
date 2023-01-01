@@ -1,18 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        @font-face {
+            font-family: DMMonoRegular;
+            src: url(DMMono-Regular.ttf);
+        }
+
+        html,
+        body {
+            margin: 0;
+        }
+
+        #container {
+            background-color: skyblue;
+            width: 100vw;
+            height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #tile-container {
+            font-family: DMMonoRegular;
+            position: relative;
+            width: 510px;
+            height: 310px;
+            background-color: #191919;
+        }
+
+        .tile {
+            position: absolute;
+            box-sizing: border-box;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            transition: .25s;
+
+            background-color: rgb(44, 44, 44);
+
+            border-radius: 12px;
+
+            color: white;
+        }
+
+        .text-container {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+        }
+
+        .tile:hover {
+            background-color: rgb(44, 44, 44);
+            background-color: saddlebrown;
+            /* transform: translate(100px, 100px); */
+            /* transform: scale(0.8); */
+            width: 200px !important;
+            height: 400px !important;
+        }
+    </style>
 </head>
+
 <body>
-    <h2 id="id"></h2>
+    <div id="container">
+        <div id="tile-container">
+
+        </div>
+    </div>
+    <script src="leader-line.min.js"></script>
     <script src="./bundle.js"></script>
     <script>
-        document.getElementById("id").innerHTML = window.location.href
+        (() => {
+            const encodedData = new URLSearchParams(window.location.search).get("code")
 
-        bumlbook.runBuml("SrJGjLDmibBmICt9oGS0")
+            if (encodedData === null) {
+                return
+            }
+
+            const { tiles, relationships } = bumlbook.runBuml(encodedData, 500, 300)
+
+            console.log(tiles)
+
+            const margin = 10
+
+            tiles.forEach(tile => {
+                let el = document.createElement("div")
+                el.className = "tile"
+                el.style.width = `${tile.width - margin}px`
+                el.style.height = `${tile.height - margin}px`
+                el.style.left = `${tile.x + margin}px`
+                el.style.top = `${tile.y + margin}px`
+                el.setAttribute("id", tile.data.data.name)
+
+                textContainer = document.createElement("div")
+                textContainer.className = "text-container"
+                textContainer.innerHTML = tile.data.data.name
+
+                el.appendChild(textContainer)
+
+                document.getElementById("tile-container").append(el)
+            })
+
+            let lines = []
+
+            relationships.forEach(r => {
+                let left = document.getElementById(r.left)
+                let right = document.getElementById(r.right)
+
+                let leftAnchor = LeaderLine.mouseHoverAnchor({element: left, showEffectName: 'draw', style: null}, style= null)
+
+                lines.push(new LeaderLine(
+                    leftAnchor,
+                    // LeaderLine.pointAnchor(leftAnchor, {x: '50%', y: '50%'}),
+                    LeaderLine.pointAnchor(right, {x: '50%', y: '50%'}),
+                   
+                    { color: 'purple', size: 2 }
+                ))
+
+            })
+            // const line = new LeaderLine(
+            //     document.getElementsByClassName('tile')[0],
+            //     document.getElementsByClassName('tile')[3],
+            //     {color: 'blue', size: 3, dash: {animation: true}},
+
+            //     );
+
+            let tilesDiv = document.getElementsByClassName("tile")
+
+            for (let i = 0; i < tilesDiv.length; i++) {
+                tilesDiv[i].addEventListener("transitionend", (event) => {
+                    if (event.propertyName !== "width") {
+                        return
+                    }
+                    console.log('kkk')
+                    console.log(event)
+                    // line.position()
+
+                    // lines.forEach(l => {
+                    //     l.position()
+                    // })
+                });
+                // tilesDiv[i].addEventListener("animationend", alert('asd'),false);
+                // tilesDiv[i].addEventListener("oanimationend", alert('asd'),false);
+            }
+        })()
+
+
     </script>
 </body>
+
 </html>

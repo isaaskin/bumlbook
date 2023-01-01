@@ -7,3 +7,6 @@ node_modules/
 
 # Peg
 src/plantuml.ts
+
+# DS Store
+.DS_Store
