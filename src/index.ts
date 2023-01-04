@@ -15,7 +15,6 @@ const runBuml = (encodedPlantUMLCode: string, width: number, height: number) => 
 
     const parsedData: types.UML[] = parse(decodedData)
 
-    console.log(parsedData[0].elements)
 
     let filtered: types.Class[] & types.Enum[] & types.Interface[] = []
     
@@ -24,12 +23,6 @@ const runBuml = (encodedPlantUMLCode: string, width: number, height: number) => 
             filtered.push(element)
         }
     })
-
-    let memberLengths = filtered.map(e => e.members.length)
-    console.log(memberLengths)
-    console.log(memberLengths.map(m => Math.floor(Math.sqrt(m))))
-    console.log(arraySmooth(memberLengths, 2))
-    console.log(arraySmooth(memberLengths.sort((a, b) => a - b), 3))
 
     let result = filtered.map((element: types.Class | types.Enum | types.Interface)=> (
         {

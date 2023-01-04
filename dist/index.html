@@ -59,14 +59,21 @@
             text-align: center;
         }
 
-        .tile:hover {
+        .tile.hover {
+            border: 2px solid mediumaquamarine;
+            z-index: 999;
+
+            opacity: 0.8;
+        }
+
+        /* .tile:hover {
             background-color: rgb(44, 44, 44);
             background-color: saddlebrown;
-            /* transform: translate(100px, 100px); */
-            /* transform: scale(0.8); */
+            transform: translate(100px, 100px);
+            transform: scale(0.8);
             width: 200px !important;
             height: 400px !important;
-        }
+        } */
     </style>
 </head>
 
@@ -88,8 +95,6 @@
 
             const { tiles, relationships } = bumlbook.runBuml(encodedData, 500, 300)
 
-            console.log(tiles)
-
             const margin = 10
 
             tiles.forEach(tile => {
@@ -110,21 +115,20 @@
                 document.getElementById("tile-container").append(el)
             })
 
-            let lines = []
+            console.log(relationships)
 
             relationships.forEach(r => {
                 let left = document.getElementById(r.left)
                 let right = document.getElementById(r.right)
 
-                let leftAnchor = LeaderLine.mouseHoverAnchor({element: left, showEffectName: 'draw', style: null}, style= null)
-
-                lines.push(new LeaderLine(
-                    leftAnchor,
-                    // LeaderLine.pointAnchor(leftAnchor, {x: '50%', y: '50%'}),
-                    LeaderLine.pointAnchor(right, {x: '50%', y: '50%'}),
-                   
-                    { color: 'purple', size: 2 }
-                ))
+                r['leftElement'] = left
+                r['rightElement'] = right
+                
+                r['line'] = new LeaderLine(
+                    LeaderLine.pointAnchor(left, {x: '50%', y: '50%'}),
+                    LeaderLine.pointAnchor(right, {x: '50%', y: '50%'}),                   
+                    { color: 'mediumaquamarine', size: 3, hide: true }
+                )
 
             })
             // const line = new LeaderLine(
@@ -137,12 +141,34 @@
             let tilesDiv = document.getElementsByClassName("tile")
 
             for (let i = 0; i < tilesDiv.length; i++) {
+                tilesDiv[i].onmouseover = (event) => {
+                    let id = event.target.getAttribute("id")
+
+                    relationships.forEach(r => {
+                        if (r.left === id || r.right === id) {
+                            r.leftElement.classList.add('hover')
+                            r.rightElement.classList.add('hover')
+                            r.line.show('draw')
+                        }
+                    })
+                }
+
+                tilesDiv[i].onmouseout = (event) => {
+                    [...document.getElementsByClassName('tile')].forEach(d => {
+                        d.classList.remove('hover')
+                    })
+                
+                    relationships.forEach(r => {
+                        r.line.hide()
+                    })
+                }
+
                 tilesDiv[i].addEventListener("transitionend", (event) => {
                     if (event.propertyName !== "width") {
                         return
                     }
-                    console.log('kkk')
-                    console.log(event)
+                    // console.log('kkk')
+                    // console.log(event)
                     // line.position()
 
                     // lines.forEach(l => {
