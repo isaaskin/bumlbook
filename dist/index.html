@@ -15,10 +15,11 @@
         html,
         body {
             margin: 0;
+            background-color: #191919;
         }
 
         #container {
-            background-color: skyblue;
+            background-color: #191919;
             width: 100vw;
             height: 100vh;
 
@@ -30,8 +31,8 @@
         #tile-container {
             font-family: DMMonoRegular;
             position: relative;
-            width: 510px;
-            height: 310px;
+            width: 100%;
+            height: 100%;
             background-color: #191919;
         }
 
@@ -40,10 +41,12 @@
             box-sizing: border-box;
 
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
 
-            transition: .25s;
+            transition: .35s;
+            transition-timing-function: ease;
 
             background-color: rgb(44, 44, 44);
 
@@ -64,6 +67,18 @@
             z-index: 999;
 
             opacity: 0.8;
+        }
+
+        .tile.dismissed {
+            opacity: 0.2;
+        }
+
+        .tile.focused {
+            /* transform: scale(1.5); */
+        }
+
+        .tile > .members {
+            /* background-color: aliceblue; */
         }
 
         /* .tile:hover {
@@ -93,29 +108,38 @@
                 return
             }
 
-            const { tiles, relationships } = bumlbook.runBuml(encodedData, 500, 300)
+            const { tiles, relationships } = bumlbook.runBuml(encodedData, 800, 600)
 
             const margin = 10
+
+            const tileContainer = document.getElementById("tile-container")
+            const tileContainerWidth = tileContainer.offsetWidth
+            const tileContainerHeight = tileContainer.offsetHeight
+
+            const widthVariance = (tileContainerWidth - 800) / 2
+            const heightVariance = (tileContainerHeight - 600) / 2
 
             tiles.forEach(tile => {
                 let el = document.createElement("div")
                 el.className = "tile"
                 el.style.width = `${tile.width - margin}px`
                 el.style.height = `${tile.height - margin}px`
-                el.style.left = `${tile.x + margin}px`
-                el.style.top = `${tile.y + margin}px`
+                el.style.left = `${tile.x + widthVariance + margin}px`
+                el.style.top = `${tile.y + heightVariance + margin}px`
                 el.setAttribute("id", tile.data.data.name)
 
                 textContainer = document.createElement("div")
                 textContainer.className = "text-container"
                 textContainer.innerHTML = tile.data.data.name
 
+                let members = document.createElement("div")
+                members.className = "members";
+
                 el.appendChild(textContainer)
-
-                document.getElementById("tile-container").append(el)
+                el.appendChild(members)
+                tileContainer.appendChild(el)
+                tile["dom"] = el
             })
-
-            console.log(relationships)
 
             relationships.forEach(r => {
                 let left = document.getElementById(r.left)
@@ -127,9 +151,8 @@
                 r['line'] = new LeaderLine(
                     LeaderLine.pointAnchor(left, {x: '50%', y: '50%'}),
                     LeaderLine.pointAnchor(right, {x: '50%', y: '50%'}),                   
-                    { color: 'mediumaquamarine', size: 3, hide: true }
+                    { color: 'mediumaquamarine', size: 3, hide: true, path: 'arc' }
                 )
-
             })
             // const line = new LeaderLine(
             //     document.getElementsByClassName('tile')[0],
@@ -140,22 +163,92 @@
 
             let tilesDiv = document.getElementsByClassName("tile")
 
+            const enterDetailsView = (detailsViewElements) => {
+                detailsViewElements.parentTiles[0].style.width = "200px";
+                detailsViewElements.parentTiles[0].style.height = "auto";
+
+                detailsViewElements.parentTiles[0].style.left = `${tileContainerWidth / 2 - 90}px`
+                detailsViewElements.parentTiles[0].style.top = `65px`
+                
+                tiles.find(t => t.data.data.name === detailsViewElements.parentTiles[0].id).data.data.members.forEach(m => {
+                    let div = document.createElement("div")
+                    div.innerHTML = m.accessor + " " + m.name
+                    detailsViewElements.parentTiles[0].getElementsByClassName("members")[0].appendChild(div)
+                })
+
+                // target
+
+                detailsViewElements.target.style.width = "200px"
+                detailsViewElements.target.style.height = "auto";
+
+                detailsViewElements.target.style.left = `${tileContainerWidth / 2 - 90}px`
+                detailsViewElements.target.style.top = `150px`
+                
+                tiles.find(t => t.data.data.name === detailsViewElements.target.id).data.data.members.forEach(m => {
+                    let div = document.createElement("div")
+                    div.innerHTML = m.accessor + " " + m.name
+                    detailsViewElements.target.getElementsByClassName("members")[0].appendChild(div)
+                })
+
+                //
+                
+                detailsViewElements.childTiles[0].style.width = "200px";
+                detailsViewElements.childTiles[0].style.height = "auto";
+
+                detailsViewElements.childTiles[0].style.left = `${tileContainerWidth / 2 - 90}px`
+                detailsViewElements.childTiles[0].style.top = `300px`
+                
+                tiles.find(t => t.data.data.name === detailsViewElements.childTiles[0].id).data.data.members.forEach(m => {
+                    let div = document.createElement("div")
+                    div.innerHTML = m.accessor + " " + m.name
+                    detailsViewElements.childTiles[0].getElementsByClassName("members")[0].appendChild(div)
+                })
+            }
+
             for (let i = 0; i < tilesDiv.length; i++) {
+                tilesDiv[i].onclick = (event) => {
+                    event.target.classList.toggle('focused');
+
+                    let parentTiles = relationships.filter(r => {
+                        return r.right === event.target.id
+                    }).map(r => r.leftElement)
+                    
+                    let childTiles = relationships.filter(r => {
+                        return r.left === event.target.id
+                    }).map(r => r.rightElement)
+
+                    let detailsViewElements = {
+                        parentTiles,
+                        childTiles,
+                        target: event.target
+                    }
+
+                    enterDetailsView(detailsViewElements)
+                }
                 tilesDiv[i].onmouseover = (event) => {
-                    let id = event.target.getAttribute("id")
+                    let id = event.target.getAttribute("id");
+
+                    [...document.getElementsByClassName('tile')].forEach(d => {
+                        d.classList.add('dismissed')
+                    });
 
                     relationships.forEach(r => {
                         if (r.left === id || r.right === id) {
                             r.leftElement.classList.add('hover')
                             r.rightElement.classList.add('hover')
+                            
+                            r.leftElement.classList.remove('dismissed')
+                            r.rightElement.classList.remove('dismissed')
+
                             r.line.show('draw')
                         }
-                    })
+                    });
                 }
 
                 tilesDiv[i].onmouseout = (event) => {
                     [...document.getElementsByClassName('tile')].forEach(d => {
                         d.classList.remove('hover')
+                        d.classList.remove('dismissed')
                     })
                 
                     relationships.forEach(r => {
