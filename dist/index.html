@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+    rel="stylesheet"
+    href="https://unpkg.com/simplebar@latest/dist/simplebar.css"
+    />
+    <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
     <title>Document</title>
     <style>
         @font-face {
@@ -15,7 +20,7 @@
         html,
         body {
             margin: 0;
-            background-color: #191919;
+            background-color: #5f2323;
         }
 
         #container {
@@ -34,6 +39,8 @@
             width: 100%;
             height: 100%;
             background-color: #191919;
+            background-color: saddlebrown;
+            overflow: auto;
         }
 
         .tile {
@@ -94,9 +101,7 @@
 
 <body>
     <div id="container">
-        <div id="tile-container">
-
-        </div>
+        <div id="tile-container"></div>
     </div>
     <script src="leader-line.min.js"></script>
     <script src="./bundle.js"></script>
@@ -154,6 +159,9 @@
                     { color: 'mediumaquamarine', size: 3, hide: true, path: 'arc' }
                 )
             })
+
+            // new SimpleBar(document.getElementById('tile-container'));
+
             // const line = new LeaderLine(
             //     document.getElementsByClassName('tile')[0],
             //     document.getElementsByClassName('tile')[3],
@@ -168,7 +176,7 @@
                 detailsViewElements.parentTiles[0].style.height = "auto";
 
                 detailsViewElements.parentTiles[0].style.left = `${tileContainerWidth / 2 - 90}px`
-                detailsViewElements.parentTiles[0].style.top = `65px`
+                detailsViewElements.parentTiles[0].style.top = `30px`
                 
                 tiles.find(t => t.data.data.name === detailsViewElements.parentTiles[0].id).data.data.members.forEach(m => {
                     let div = document.createElement("div")
@@ -176,13 +184,15 @@
                     detailsViewElements.parentTiles[0].getElementsByClassName("members")[0].appendChild(div)
                 })
 
+                console.log(detailsViewElements.parentTiles[0].offsetHeight)
+
                 // target
 
                 detailsViewElements.target.style.width = "200px"
                 detailsViewElements.target.style.height = "auto";
 
                 detailsViewElements.target.style.left = `${tileContainerWidth / 2 - 90}px`
-                detailsViewElements.target.style.top = `150px`
+                detailsViewElements.target.style.top = `${detailsViewElements.parentTiles[0].offsetHeight + 15 + 30}px`
                 
                 tiles.find(t => t.data.data.name === detailsViewElements.target.id).data.data.members.forEach(m => {
                     let div = document.createElement("div")
@@ -190,13 +200,16 @@
                     detailsViewElements.target.getElementsByClassName("members")[0].appendChild(div)
                 })
 
-                //
+                // child
                 
                 detailsViewElements.childTiles[0].style.width = "200px";
-                detailsViewElements.childTiles[0].style.height = "auto";
+                detailsViewElements.childTiles[0].style.height = "200px";
 
                 detailsViewElements.childTiles[0].style.left = `${tileContainerWidth / 2 - 90}px`
-                detailsViewElements.childTiles[0].style.top = `300px`
+
+                let t = detailsViewElements.parentTiles[0].offsetHeight + detailsViewElements.target.offsetHeight + 30 + 15 + 15;
+        
+                detailsViewElements.childTiles[0].style.top = `${t}px`
                 
                 tiles.find(t => t.data.data.name === detailsViewElements.childTiles[0].id).data.data.members.forEach(m => {
                     let div = document.createElement("div")
