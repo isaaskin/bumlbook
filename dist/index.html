@@ -5,10 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link
-    rel="stylesheet"
-    href="https://unpkg.com/simplebar@latest/dist/simplebar.css"
-    />
+    <link rel="stylesheet" href="https://unpkg.com/simplebar@latest/dist/simplebar.css" />
     <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
     <title>Document</title>
     <style>
@@ -53,7 +50,8 @@
             align-items: center;
 
             transition: .35s;
-            transition-timing-function: ease;
+            /* transition-timing-function: linear;
+            transition-property: top left border; */
 
             background-color: rgb(44, 44, 44);
 
@@ -84,7 +82,7 @@
             /* transform: scale(1.5); */
         }
 
-        .tile > .members {
+        .tile>.members {
             /* background-color: aliceblue; */
         }
 
@@ -140,6 +138,8 @@
                 let members = document.createElement("div")
                 members.className = "members";
 
+                
+
                 el.appendChild(textContainer)
                 el.appendChild(members)
                 tileContainer.appendChild(el)
@@ -152,13 +152,15 @@
 
                 r['leftElement'] = left
                 r['rightElement'] = right
-                
+
                 r['line'] = new LeaderLine(
-                    LeaderLine.pointAnchor(left, {x: '50%', y: '50%'}),
-                    LeaderLine.pointAnchor(right, {x: '50%', y: '50%'}),                   
+                    LeaderLine.pointAnchor(left, { x: '50%', y: '50%' }),
+                    LeaderLine.pointAnchor(right, { x: '50%', y: '50%' }),
                     { color: 'mediumaquamarine', size: 3, hide: true, path: 'arc' }
                 )
             })
+
+            document['relationships'] = relationships
 
             // new SimpleBar(document.getElementById('tile-container'));
 
@@ -169,15 +171,102 @@
 
             //     );
 
-            let tilesDiv = document.getElementsByClassName("tile")
+            let tilesDiv = document.getElementsByClassName("tile");
+
+            const treeify = (_tiles) => {
+                let topMargin = 25;
+                let top = 0;
+
+                let gap = 50;
+
+                let tileWidth = 200;
+
+                let iter = 0;
+
+                for (let innerTiles of _tiles) {
+                    let maxTop = 0;
+
+                    top += topMargin;
+                    let _top = `${top}px`;
+
+                    let _left = tileContainerWidth / 2 - ((gap * (innerTiles.length - 1)) + (tileWidth * innerTiles.length)) / 2;
+
+                    let count = 0;
+                    for (tile of innerTiles) {
+                        tile.ontransitionend = (e) => {
+                            if (e.propertyName === "left") {
+                                setTimeout(() => {
+                                    relationships.forEach(r => {
+                                        r.line.position()
+                                    })
+                                }, 100)
+                            }
+                        }
+                        
+                        tile.style.top = _top;
+
+                        tile.style.width = `${tileWidth}px`;
+                        tile.style.height = `auto`;
+
+                        tile.style.left = `${_left + (tileWidth * (count)) + (gap * count)}px`;
+
+                        
+
+                        // fill in the members
+                        tiles.find(t => t.data.data.name === tile.id).data.data.members.forEach(m => {
+                            let div = document.createElement("div")
+                            div.innerHTML = m.accessor + " " + m.name
+                            tile.getElementsByClassName("members")[0].appendChild(div)
+                        })
+
+                        console.log({
+                            result: tile.style.left
+                        })
+                        count++
+
+                        if (tile.offsetHeight > maxTop) {
+                            maxTop = tile.offsetHeight;
+                        }
+                    }
+
+                    top += maxTop;
+
+                    iter++;
+                }
+                
+                let flattenedMainTiles = _tiles.flat()
+                console.log(flattenedMainTiles)
+                tiles.forEach(t => {
+                    if (flattenedMainTiles.some(f => f.getAttribute("id") === t.data.data.name)) {
+                        
+                    } else {
+
+                        t.dom.style.display = "None";
+                    }
+                })
+
+                // setTimeout(() => {
+                //     relationships.forEach(r => {
+                //         console.log(r)
+                //         r.line.position()
+                //     })
+                // }, 400)
+
+            }
 
             const enterDetailsView = (detailsViewElements) => {
+                treeify([
+                    detailsViewElements.parentTiles,
+                    [detailsViewElements.target],
+                    detailsViewElements.childTiles
+                ])
+                return
                 detailsViewElements.parentTiles[0].style.width = "200px";
                 detailsViewElements.parentTiles[0].style.height = "auto";
 
                 detailsViewElements.parentTiles[0].style.left = `${tileContainerWidth / 2 - 90}px`
                 detailsViewElements.parentTiles[0].style.top = `30px`
-                
+
                 tiles.find(t => t.data.data.name === detailsViewElements.parentTiles[0].id).data.data.members.forEach(m => {
                     let div = document.createElement("div")
                     div.innerHTML = m.accessor + " " + m.name
@@ -193,7 +282,7 @@
 
                 detailsViewElements.target.style.left = `${tileContainerWidth / 2 - 90}px`
                 detailsViewElements.target.style.top = `${detailsViewElements.parentTiles[0].offsetHeight + 15 + 30}px`
-                
+
                 tiles.find(t => t.data.data.name === detailsViewElements.target.id).data.data.members.forEach(m => {
                     let div = document.createElement("div")
                     div.innerHTML = m.accessor + " " + m.name
@@ -201,16 +290,16 @@
                 })
 
                 // child
-                
+
                 detailsViewElements.childTiles[0].style.width = "200px";
                 detailsViewElements.childTiles[0].style.height = "200px";
 
                 detailsViewElements.childTiles[0].style.left = `${tileContainerWidth / 2 - 90}px`
 
                 let t = detailsViewElements.parentTiles[0].offsetHeight + detailsViewElements.target.offsetHeight + 30 + 15 + 15;
-        
+
                 detailsViewElements.childTiles[0].style.top = `${t}px`
-                
+
                 tiles.find(t => t.data.data.name === detailsViewElements.childTiles[0].id).data.data.members.forEach(m => {
                     let div = document.createElement("div")
                     div.innerHTML = m.accessor + " " + m.name
@@ -225,7 +314,7 @@
                     let parentTiles = relationships.filter(r => {
                         return r.right === event.target.id
                     }).map(r => r.leftElement)
-                    
+
                     let childTiles = relationships.filter(r => {
                         return r.left === event.target.id
                     }).map(r => r.rightElement)
@@ -249,7 +338,7 @@
                         if (r.left === id || r.right === id) {
                             r.leftElement.classList.add('hover')
                             r.rightElement.classList.add('hover')
-                            
+
                             r.leftElement.classList.remove('dismissed')
                             r.rightElement.classList.remove('dismissed')
 
@@ -263,26 +352,17 @@
                         d.classList.remove('hover')
                         d.classList.remove('dismissed')
                     })
-                
+
                     relationships.forEach(r => {
                         r.line.hide()
                     })
                 }
 
-                tilesDiv[i].addEventListener("transitionend", (event) => {
-                    if (event.propertyName !== "width") {
-                        return
-                    }
-                    // console.log('kkk')
-                    // console.log(event)
-                    // line.position()
-
-                    // lines.forEach(l => {
-                    //     l.position()
-                    // })
-                });
-                // tilesDiv[i].addEventListener("animationend", alert('asd'),false);
-                // tilesDiv[i].addEventListener("oanimationend", alert('asd'),false);
+                // tilesDiv[i].addEventListener("transitionend", (event) => {
+                //     if (event.propertyName !== "width") {
+                //         return
+                //     }
+                // });
             }
         })()
 
