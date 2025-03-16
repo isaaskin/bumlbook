@@ -101,7 +101,7 @@
     <div id="container">
         <div id="tile-container"></div>
     </div>
-    <script src="leader-line.min.js"></script>
+    <script src="../node_modules/leader-line/leader-line.min.js"></script>
     <script src="./bundle.js"></script>
     <script>
         (() => {
@@ -138,8 +138,6 @@
                 let members = document.createElement("div")
                 members.className = "members";
 
-                
-
                 el.appendChild(textContainer)
                 el.appendChild(members)
                 tileContainer.appendChild(el)
@@ -162,7 +160,7 @@
 
             document['relationships'] = relationships
 
-            // new SimpleBar(document.getElementById('tile-container'));
+            new SimpleBar(document.getElementById('tile-container'));
 
             // const line = new LeaderLine(
             //     document.getElementsByClassName('tile')[0],
@@ -209,8 +207,6 @@
                         tile.style.height = `auto`;
 
                         tile.style.left = `${_left + (tileWidth * (count)) + (gap * count)}px`;
-
-                        
 
                         // fill in the members
                         tiles.find(t => t.data.data.name === tile.id).data.data.members.forEach(m => {

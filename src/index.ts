@@ -7,8 +7,7 @@ import * as types from "./types"
 const { getTreemap } = require('treemap-squarify')
 
 
-const runBuml = (encodedPlantUMLCode: string, width: number, height: number) => {
-    
+const runBuml = (encodedPlantUMLCode: string, width: number, height: number) => {    
     const decodedData: string = plantumlEncoder.decode(encodedPlantUMLCode)
 
     const parsedData: types.UML[] = parse(decodedData)

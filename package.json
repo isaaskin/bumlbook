@@ -27,6 +27,7 @@
   "dependencies": {
     "array-smooth": "^1.0.0",
     "install": "^0.13.0",
+    "leader-line": "^1.0.7",
     "npm": "^9.2.0",
     "plantuml-encoder": "^1.4.0",
     "treemap-squarify": "^1.0.1"
